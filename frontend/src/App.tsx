@@ -118,58 +118,109 @@ export const App: React.FC = () => {
   }, [accentColor]);
 
   // --- Handlers ---
+  const handleEditTodo = (todo: Todo) => {
+    if (todo.id.startsWith('temp-')) {
+      alert('Task is still saving. Please wait.');
+      return;
+    }
+    setEditingTodo(todo);
+  };
+
   const handleFormSubmit = async (title: string) => {
     if (editingTodo) {
+      const prevTodos = [...todos];
+      const targetTodo = todos.find((t) => t.id === editingTodo.id);
+      if (!targetTodo) return;
+
+      // Optimistically update UI title and clear editing status
+      setTodos(todos.map((t) => (t.id === editingTodo.id ? { ...t, title } : t)));
+      setEditingTodo(null);
+      audioService.playComplete();
+
       try {
-        const response = await axios.put<Todo>(`${API_URL}/${editingTodo.id}`, { title });
-        setTodos(todos.map((t) => (t.id === editingTodo.id ? response.data : t)));
-        setEditingTodo(null);
-        audioService.playComplete();
+        const response = await axios.put<Todo>(`${API_URL}/${targetTodo.id}`, { title });
+        setTodos((prev) => prev.map((t) => (t.id === targetTodo.id ? response.data : t)));
       } catch (err) {
         console.error('Error updating todo title:', err);
-        alert('Failed to update task.');
+        setTodos(prevTodos);
+        alert('Failed to update task. Reverting changes.');
       }
     } else {
+      const tempId = `temp-${Date.now()}`;
+      const tempTodo: Todo = {
+        id: tempId,
+        title,
+        completed: false,
+        createdAt: new Date().toISOString(),
+      };
+      const prevTodos = [...todos];
+
+      // Optimistically add task to UI
+      setTodos([tempTodo, ...todos]);
+      audioService.playClick();
+
       try {
         const response = await axios.post<Todo>(API_URL, { title });
-        setTodos([response.data, ...todos]);
-        audioService.playClick();
+        setTodos((prev) => prev.map((t) => (t.id === tempId ? response.data : t)));
       } catch (err) {
         console.error('Error adding todo:', err);
-        alert('Failed to save task.');
+        setTodos(prevTodos);
+        alert('Failed to save task. Reverting changes.');
       }
     }
   };
 
   const handleToggleTodoComplete = async (id: string) => {
+    if (id.startsWith('temp-')) {
+      alert('Task is still saving. Please wait.');
+      return;
+    }
+
     const todo = todos.find((t) => t.id === id);
     if (!todo) return;
 
+    const prevTodos = [...todos];
     const nextCompleted = !todo.completed;
     const completedAt = nextCompleted ? new Date().toISOString() : undefined;
+
+    // Optimistically toggle completion status in UI
+    setTodos(todos.map((t) => (t.id === id ? { ...t, completed: nextCompleted, completedAt } : t)));
 
     try {
       const response = await axios.put<Todo>(`${API_URL}/${id}`, {
         completed: nextCompleted,
         completedAt,
       });
-      setTodos(todos.map((t) => (t.id === id ? response.data : t)));
+      setTodos((prev) => prev.map((t) => (t.id === id ? response.data : t)));
     } catch (err) {
       console.error('Error toggling todo completion:', err);
-      alert('Failed to toggle task completion.');
+      setTodos(prevTodos);
+      alert('Failed to toggle task completion. Reverting changes.');
     }
   };
 
   const handleDeleteTodo = async (id: string) => {
+    if (id.startsWith('temp-')) {
+      alert('Task is still saving. Please wait.');
+      return;
+    }
+
+    const prevTodos = [...todos];
+    const prevEditingTodo = editingTodo;
+
+    // Optimistically remove from UI
+    setTodos(todos.filter((t) => t.id !== id));
+    if (editingTodo?.id === id) {
+      setEditingTodo(null);
+    }
+
     try {
       await axios.delete(`${API_URL}/${id}`);
-      setTodos(todos.filter((t) => t.id !== id));
-      if (editingTodo?.id === id) {
-        setEditingTodo(null);
-      }
     } catch (err) {
       console.error('Error deleting todo:', err);
-      alert('Failed to delete task.');
+      setTodos(prevTodos);
+      setEditingTodo(prevEditingTodo);
+      alert('Failed to delete task. Reverting changes.');
     }
   };
 
@@ -427,7 +478,7 @@ export const App: React.FC = () => {
                                   todo={todo}
                                   onToggleComplete={handleToggleTodoComplete}
                                   onDelete={handleDeleteTodo}
-                                  onEdit={setEditingTodo}
+                                  onEdit={handleEditTodo}
                                 />
                               </motion.div>
                             ))
