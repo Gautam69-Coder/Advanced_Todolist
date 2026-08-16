@@ -23,6 +23,25 @@ mongoose.connect(MONGODB_URI)
 // Routes mount
 app.use('/api/todos', todoRoutes);
 
+// Health check endpoints
+const healthCheck = (req, res) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  const status = {
+    status: dbStatus === 'connected' ? 'UP' : 'DOWN',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    database: dbStatus,
+  };
+
+  if (dbStatus !== 'connected') {
+    return res.status(503).json(status);
+  }
+  res.status(200).json(status);
+};
+
+app.get('/health', healthCheck);
+app.get('/api/health', healthCheck);
+
 // Server status base endpoint
 app.get('/', (req, res) => {
   res.send('Neomorphic Todo List Express API is running.');

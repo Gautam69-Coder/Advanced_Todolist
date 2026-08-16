@@ -11,7 +11,8 @@ import { WeeklyChart } from './components/WeeklyChart';
 import { HistoryTimeline } from './components/HistoryTimeline';
 import { audioService } from './utils/audio';
 
-const API_URL = 'http://localhost:5000/api/todos';
+const API_URL = 'https://advanced-todolist-r0re.onrender.com';
+// const API_URL = 'http://localhost:5000/api/todos';
 
 export const App: React.FC = () => {
   // --- Persistent Storage State & Network State ---
