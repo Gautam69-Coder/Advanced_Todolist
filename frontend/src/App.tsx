@@ -11,14 +11,14 @@ import { WeeklyChart } from './components/WeeklyChart';
 import { HistoryTimeline } from './components/HistoryTimeline';
 import { AuthCard } from './components/AuthCard';
 import { audioService } from './utils/audio';
-import { Base_URL } from './Api';
+import { Base_URL } from './api/api';
 
 // Configure axios to always send cookies for credentials
 axios.defaults.withCredentials = true;
 
 const BASE_URL = Base_URL;
 // const BASE_URL = 'https://advanced-todolist-r0re.onrender.com';
-const API_URL = `${Base_URL}/api/todos`;
+const API_URL = `${BASE_URL}/api/todos`;
 
 export const App: React.FC = () => {
   // --- Persistent Storage State & Network State ---
