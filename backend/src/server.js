@@ -17,7 +17,8 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/neomor
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
-  'https://advanced-todolist-r0re.onrender.com'
+  'https://advanced-todolist-r0re.onrender.com',
+  "https://advanced-todolist.pages.dev"
 ];
 
 app.use(cors({
