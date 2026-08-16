@@ -13,10 +13,11 @@ const sendTokenCookie = (res, user) => {
     { expiresIn: '24h' }
   );
 
+  const isProd = process.env.NODE_ENV === 'production';
   res.cookie('token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
   });
 };
@@ -91,10 +92,11 @@ router.post('/login', async (req, res) => {
 
 // 3. POST: User logout
 router.post('/logout', (req, res) => {
+  const isProd = process.env.NODE_ENV === 'production';
   res.clearCookie('token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
   });
   res.json({ message: 'Successfully logged out' });
 });

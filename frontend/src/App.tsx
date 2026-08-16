@@ -17,7 +17,6 @@ import { Base_URL } from './api/api';
 axios.defaults.withCredentials = true;
 
 const BASE_URL = Base_URL;
-// const BASE_URL = 'https://advanced-todolist-r0re.onrender.com';
 const API_URL = `${BASE_URL}/api/todos`;
 
 export const App: React.FC = () => {
