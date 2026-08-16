@@ -1,8 +1,10 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import todoRoutes from './routes/todoRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 // Load environmental parameters
 dotenv.config();
@@ -11,9 +13,33 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/neomorphic-todos';
 
+// CORS configuration supporting credentials (cookies)
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://advanced-todolist-r0re.onrender.com'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, postman, or curl)
+    if (!origin) return callback(null, true);
+    // Match any localhost origin or listed production domains
+    if (
+      allowedOrigins.includes(origin) || 
+      /^http:\/\/localhost:\d+$/.test(origin) || 
+      /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)
+    ) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
+
 // Middlewares
-app.use(cors()); // Cross-Origin Resource sharing
 app.use(express.json()); // parsing request JSON bodies
+app.use(cookieParser()); // parsing cookie headers
 
 // MongoDB Database Connector
 mongoose.connect(MONGODB_URI)
@@ -21,6 +47,7 @@ mongoose.connect(MONGODB_URI)
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes mount
+app.use('/api/auth', authRoutes);
 app.use('/api/todos', todoRoutes);
 
 // Health check endpoints
