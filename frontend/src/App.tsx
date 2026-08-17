@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Sparkles, Volume2, VolumeX, Sun, Moon, CheckCircle2, ListTodo, BarChart2, History, AlertCircle, RefreshCw, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import Dexie from "dexie";
 
 import type { Todo, Theme, AccentColor, ActiveTab } from './types';
 import { TactileButton } from './components/TactileButton';
