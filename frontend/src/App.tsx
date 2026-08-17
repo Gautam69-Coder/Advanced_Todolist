@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Sparkles, Volume2, VolumeX, Sun, Moon, CheckCircle2, ListTodo, BarChart2, History, AlertCircle, RefreshCw, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import Dexie from "dexie";
 
 import type { Todo, Theme, AccentColor, ActiveTab } from './types';
 import { TactileButton } from './components/TactileButton';
@@ -124,6 +125,9 @@ export const App: React.FC = () => {
     }
     setEditingTodo(todo);
   };
+
+
+  
 
   const handleFormSubmit = async (title: string) => {
     if (editingTodo) {
@@ -258,7 +262,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-neu-bg text-neu-text p-4 md:p-8 pb-24 md:pb-8 font-sans overflow-x-hidden transition-all duration-300">
-      <div className="max-w-md mx-auto flex flex-col gap-6">
+      <div className="max-w-lg mx-auto flex flex-col gap-6">
         
         {/* APP HEADER */}
         <header className="bg-neu-bg p-5 rounded-3xl shadow-neu-out border border-neu-border flex flex-col gap-4">
